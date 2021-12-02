@@ -103,6 +103,28 @@ class OrganizationControllerTest {
     }
 
     @Test
+    void itShouldSaveOrganization2() throws Exception {
+        // Given
+        Organization organization = new Organization();
+        organization.setId("45");
+        organization.setContactName("Contact Name");
+        organization.setName("Orbsec");
+        organization.setContactEmail("jane.doe@orbsec.org");
+        organization.setContactPhone("4105551212");
+        String content = (new ObjectMapper()).writeValueAsString(organization);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/v1/organization")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content);
+        MockMvc buildResult = MockMvcBuilders.standaloneSetup(this.organizationController).build();
+
+        // When
+        ResultActions actualPerformResult = buildResult.perform(requestBuilder);
+
+        // Then
+        actualPerformResult.andExpect(MockMvcResultMatchers.status().is(405));
+    }
+
+    @Test
     void itShouldUpdateOrganization() throws Exception {
         // Given
         doNothing().when(this.organizationService).update(any());
