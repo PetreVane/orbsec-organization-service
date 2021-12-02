@@ -1,6 +1,7 @@
 package com.orbsec.organizationservice.controller;
 
 import com.orbsec.organizationservice.model.Organization;
+import com.orbsec.organizationservice.model.OrganizationDto;
 import com.orbsec.organizationservice.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,18 +25,18 @@ public class OrganizationController {
     }
 
     @PutMapping(value="/{organizationId}")
-    public void updateOrganization( @PathVariable("organizationId") String id, @RequestBody Organization organization) {
-        service.update(organization);
+    public void updateOrganization( @PathVariable("organizationId") String id, @RequestBody OrganizationDto organizationDto) {
+        service.update(organizationDto);
     }
 
     @PostMapping
-    public ResponseEntity<Organization>  saveOrganization(@RequestBody Organization organization) {
-        return ResponseEntity.ok(service.create(organization));
+    public ResponseEntity<OrganizationDto>  saveOrganization(@RequestBody OrganizationDto organizationDto) {
+        return ResponseEntity.ok(service.create(organizationDto));
     }
 
     @DeleteMapping(value="/{organizationId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deleteOrganization( @PathVariable("id") String id,  @RequestBody Organization organization) {
-        service.delete(organization);
+    public void deleteOrganization( @PathVariable("id") String id,  @RequestBody OrganizationDto organizationDto) {
+        service.delete(organizationDto);
     }
 }
