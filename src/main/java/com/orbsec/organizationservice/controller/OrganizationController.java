@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/api/v1/organization")
 public class OrganizationController {
@@ -17,6 +19,11 @@ public class OrganizationController {
     @Autowired
     public OrganizationController(OrganizationService service) {
         this.service = service;
+    }
+
+    @GetMapping(value = "/all")
+    public ResponseEntity<List<OrganizationDto>> getAllOrganizations() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping(value="/{organizationId}")
@@ -36,7 +43,8 @@ public class OrganizationController {
 
     @DeleteMapping(value="/{organizationId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deleteOrganization( @PathVariable("id") String id,  @RequestBody OrganizationDto organizationDto) {
+    public void deleteOrganization( @PathVariable("organizationId") String id,  @RequestBody OrganizationDto organizationDto) {
         service.delete(organizationDto);
     }
+
 }
