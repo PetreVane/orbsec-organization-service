@@ -8,7 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,6 +62,13 @@ public class OrganizationService {
     public void delete(OrganizationDto organizationDto) {
         Organization organization = mapDto(organizationDto);
         repository.deleteById(organization.getId());
+    }
+
+    public List<OrganizationDto> findAll() {
+        var orgDtoList = new ArrayList<OrganizationDto>();
+        var organizations = repository.findAll();
+        organizations.forEach(organization -> orgDtoList.add(mapOrganization(organization)));
+        return orgDtoList;
     }
 
 
