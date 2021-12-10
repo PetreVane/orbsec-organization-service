@@ -32,7 +32,7 @@ class OrganizationControllerTest {
     private OrganizationService organizationService;
 
     @Test
-    void itShouldNotDeleteOrganization() throws Exception {
+    void itShouldDeleteOrganization() throws Exception {
         // Given
         Organization organization = new Organization();
         organization.setId("42");
@@ -51,7 +51,7 @@ class OrganizationControllerTest {
         ResultActions actualPerformResult = buildResult.perform(requestBuilder);
 
         // Then
-        actualPerformResult.andExpect(MockMvcResultMatchers.status().is(500));
+        actualPerformResult.andExpect(MockMvcResultMatchers.status().is(202));
     }
 
     @Test
