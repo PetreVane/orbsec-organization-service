@@ -5,15 +5,21 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.orbsec.organizationservice.exceptions.MissingOrganizationException;
+import com.orbsec.organizationservice.model.LicenseDTO;
 import com.orbsec.organizationservice.model.Organization;
 import com.orbsec.organizationservice.model.OrganizationDto;
 import com.orbsec.organizationservice.repository.OrganizationRepository;
+import com.orbsec.organizationservice.service.client.LicenseFeignClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.Optional;
 
@@ -29,6 +35,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class OrganizationServiceTest {
 
     @MockBean
+    private LicenseFeignClient licenseFeignClient;
+
+    @MockBean
     private OrganizationRepository organizationRepository;
 
     @Autowired
@@ -36,22 +45,26 @@ class OrganizationServiceTest {
 
     @Test
     void itShouldFindById() throws MissingOrganizationException {
-        // Given
+        // Arrange
         Organization organization = new Organization();
-        organization.setId("42");
-        organization.setContactName("Contact Name");
-        organization.setName("Name");
         organization.setContactEmail("jane.doe@example.org");
+        organization.setContactName("Contact Name");
         organization.setContactPhone("4105551212");
+        organization.setId("42");
+        organization.setName("Name");
         Optional<Organization> ofResult = Optional.of(organization);
         when(this.organizationRepository.findById(any())).thenReturn(ofResult);
         String organizationId = "42";
 
-        // When
-        Organization actualFindByIdResult = this.organizationService.findById(organizationId);
+        // Act
+        OrganizationDto actualFindByIdResult = this.organizationService.findById(organizationId);
 
-        // Then
-        assertThat(actualFindByIdResult).isSameAs(organization);
+        // Assert
+        assertEquals("jane.doe@example.org", actualFindByIdResult.getContactEmail());
+        assertEquals("Name", actualFindByIdResult.getName());
+        assertEquals("42", actualFindByIdResult.getId());
+        assertEquals("4105551212", actualFindByIdResult.getContactPhone());
+        assertEquals("Contact Name", actualFindByIdResult.getContactName());
         verify(this.organizationRepository).findById(any());
     }
 
@@ -97,35 +110,6 @@ class OrganizationServiceTest {
         verify(this.organizationRepository).save(any());
     }
 
-    @Test
-    void itShouldCreate2() {
-        // Given
-        Organization organization = new Organization();
-        organization.setId("42");
-        organization.setContactName("Contact Name");
-        organization.setName("42Name");
-        organization.setContactEmail("jane.doe@example.org");
-        organization.setContactPhone("4105551212");
-        when(this.organizationRepository.save(any())).thenReturn(organization);
-
-        OrganizationDto organizationDto = new OrganizationDto();
-        organizationDto.setId("42");
-        organizationDto.setContactName("Contact Name");
-        organizationDto.setName("Name");
-        organizationDto.setContactEmail("jane.doe@example.org");
-        organizationDto.setContactPhone("4105551212");
-
-        // When
-        OrganizationDto actualCreateResult = this.organizationService.create(organizationDto);
-
-        // Then
-        assertEquals("jane.doe@example.org", actualCreateResult.getContactEmail());
-        assertEquals("42Name", actualCreateResult.getName());
-        assertEquals("42", actualCreateResult.getId());
-        assertEquals("4105551212", actualCreateResult.getContactPhone());
-        assertEquals("Contact Name", actualCreateResult.getContactName());
-        verify(this.organizationRepository).save(any());
-    }
 
     @Test
     void itShouldUpdate() {
@@ -153,7 +137,7 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void itShouldUpdate2() {
+    void itShouldThrowException2() {
         // Given
         when(this.organizationRepository.save(any()))
                 .thenThrow(new MissingOrganizationException("An error occurred"));
@@ -187,6 +171,36 @@ class OrganizationServiceTest {
 
         // Then
         verify(this.organizationRepository).deleteById(any());
+    }
+
+    @Test
+    void itShouldFindAllLicensesForOrganization() {
+        // When
+        ArrayList<LicenseDTO> licenseDTOList = new ArrayList<>();
+        when(this.licenseFeignClient.getAllLicenses(any())).thenReturn(licenseDTOList);
+        String organizationId = "5554552";
+
+        // Given
+        List<LicenseDTO> actualFindAllLicensesForOrganizationResult = this.organizationService
+                .findAllLicensesForOrganization(organizationId);
+
+        // Then
+        assertSame(licenseDTOList, actualFindAllLicensesForOrganizationResult);
+        assertTrue(actualFindAllLicensesForOrganizationResult.isEmpty());
+        verify(this.licenseFeignClient).getAllLicenses(any());
+    }
+
+    @Test
+    void itShouldThrowMissingOrganizationException() {
+        // Arrange
+        when(this.licenseFeignClient.getAllLicenses(any()))
+                .thenThrow(new MissingOrganizationException("Missing organization"));
+        String organizationId = "555552";
+
+        // Act and Assert
+        assertThrows(MissingOrganizationException.class,
+                () -> this.organizationService.findAllLicensesForOrganization(organizationId));
+        verify(this.licenseFeignClient).getAllLicenses(any());
     }
 }
 
