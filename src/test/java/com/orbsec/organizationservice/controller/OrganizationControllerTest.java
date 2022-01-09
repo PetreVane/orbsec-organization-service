@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orbsec.organizationservice.model.Organization;
+import com.orbsec.organizationservice.model.OrganizationDto;
 import com.orbsec.organizationservice.service.OrganizationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,7 +58,7 @@ class OrganizationControllerTest {
     @Test
     void itShouldGetOrganization() throws Exception {
         // Given
-        Organization organization = new Organization();
+        OrganizationDto organization = new OrganizationDto();
         organization.setId("42");
         organization.setContactName("Contact Name");
         organization.setName("Name");
