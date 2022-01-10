@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -171,6 +172,32 @@ class OrganizationServiceTest {
 
         // Then
         verify(this.organizationRepository).deleteById(any());
+    }
+
+    @Test
+    void itShouldFindAll() {
+        // Given
+        Iterable<Organization> iterable = (Iterable<Organization>) mock(Iterable.class);
+        doNothing().when(iterable).forEach(any());
+        when(this.organizationRepository.findAll()).thenReturn(iterable);
+
+        // When
+        List<OrganizationDto> actualFindAllResult = this.organizationService.findAll();
+
+        // Then
+        assertTrue(actualFindAllResult.isEmpty());
+        verify(this.organizationRepository).findAll();
+        verify(iterable).forEach(any());
+    }
+
+    @Test
+    void itShouldThrowException3() {
+        // Given and When
+        when(this.organizationRepository.findAll()).thenThrow(new MissingOrganizationException("An error occurred"));
+
+        // Then
+        assertThrows(MissingOrganizationException.class, () -> this.organizationService.findAll());
+        verify(this.organizationRepository).findAll();
     }
 
     @Test
