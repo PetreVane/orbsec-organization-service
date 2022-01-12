@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "licensing-service/api/v1/organization")
+@FeignClient(name = "licensing-service/api/v1/license")
 public interface LicenseFeignClient {
 
-    @GetMapping(value = "/{organizationId}/license/allById")
-    List<LicenseDTO> getAllLicenses(@PathVariable("organizationId") String organizationId);
+    @GetMapping(value = "/organization/{organizationId}")
+    List<LicenseDTO> getAllLicensesForOrganization(@PathVariable("organizationId") String organizationId);
 }

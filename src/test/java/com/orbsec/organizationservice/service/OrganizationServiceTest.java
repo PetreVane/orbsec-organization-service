@@ -204,7 +204,7 @@ class OrganizationServiceTest {
     void itShouldFindAllLicensesForOrganization() {
         // When
         ArrayList<LicenseDTO> licenseDTOList = new ArrayList<>();
-        when(this.licenseFeignClient.getAllLicenses(any())).thenReturn(licenseDTOList);
+        when(this.licenseFeignClient.getAllLicensesForOrganization(any())).thenReturn(licenseDTOList);
         String organizationId = "5554552";
 
         // Given
@@ -214,20 +214,20 @@ class OrganizationServiceTest {
         // Then
         assertSame(licenseDTOList, actualFindAllLicensesForOrganizationResult);
         assertTrue(actualFindAllLicensesForOrganizationResult.isEmpty());
-        verify(this.licenseFeignClient).getAllLicenses(any());
+        verify(this.licenseFeignClient).getAllLicensesForOrganization(any());
     }
 
     @Test
     void itShouldThrowMissingOrganizationException() {
         // Arrange
-        when(this.licenseFeignClient.getAllLicenses(any()))
+        when(this.licenseFeignClient.getAllLicensesForOrganization(any()))
                 .thenThrow(new MissingOrganizationException("Missing organization"));
         String organizationId = "555552";
 
         // Act and Assert
         assertThrows(MissingOrganizationException.class,
                 () -> this.organizationService.findAllLicensesForOrganization(organizationId));
-        verify(this.licenseFeignClient).getAllLicenses(any());
+        verify(this.licenseFeignClient).getAllLicensesForOrganization(any());
     }
 }
 

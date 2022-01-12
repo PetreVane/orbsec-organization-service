@@ -104,7 +104,7 @@ public class OrganizationService {
     @Retry(name ="retryLicenseService", fallbackMethod = "licensingServiceFallback")
     @Bulkhead(name = "bulkheadLicensingService",  fallbackMethod = "licensingServiceFallback")
     public List<LicenseDTO> findAllLicensesForOrganization(String organizationId) {
-        return licenseFeignClient.getAllLicenses(organizationId);
+        return licenseFeignClient.getAllLicensesForOrganization(organizationId);
     }
 
 //    FallBacks
