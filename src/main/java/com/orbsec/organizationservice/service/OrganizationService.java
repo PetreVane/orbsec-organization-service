@@ -109,9 +109,9 @@ public class OrganizationService {
 
 //    FallBacks
     @SuppressWarnings("unused")
-    private Organization findByIdFallback(String organizationId, Throwable exception) {
+    private OrganizationDto findByIdFallback(String organizationId, Throwable exception) {
         LOGGER.warn("Called findByIdFallback() ");
-        return new Organization(organizationId, "Unable to fetch organization details", FAKE_DATA, FAKE_DATA, FAKE_DATA);
+        return new OrganizationDto(organizationId, "Unable to fetch organization details", FAKE_DATA, FAKE_DATA, FAKE_DATA);
     }
 
     @SuppressWarnings("unused")
