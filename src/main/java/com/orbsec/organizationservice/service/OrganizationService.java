@@ -110,6 +110,9 @@ public class OrganizationService {
 //    FallBacks
     @SuppressWarnings("unused")
     private OrganizationDto findByIdFallback(String organizationId, Throwable exception) {
+        if (exception instanceof MissingOrganizationException) {
+            throw new MissingOrganizationException("No organization found for the provided id");
+        }
         LOGGER.warn("Called findByIdFallback() ");
         return new OrganizationDto(organizationId, "Unable to fetch organization details", FAKE_DATA, FAKE_DATA, FAKE_DATA);
     }
