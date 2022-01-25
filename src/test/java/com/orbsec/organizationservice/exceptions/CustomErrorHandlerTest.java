@@ -16,7 +16,7 @@ class CustomErrorHandlerTest {
 
         // When
         ResponseEntity<CustomError> actualOrganizationErrorHandlerResult = customErrorHandler
-                .organizationErrorHandler(exception);
+                .organizationExceptionHandler(exception);
 
         // Then
         assertTrue(actualOrganizationErrorHandlerResult.getHeaders().isEmpty());
