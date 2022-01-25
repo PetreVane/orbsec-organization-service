@@ -54,8 +54,8 @@ public class OrganizationController {
     }
 
     @GetMapping(value = "license/{organizationId}")
-    public ResponseEntity<List<LicenseDTO>> fetchLicensesForOrganization(@PathVariable ("organizationId") String organizationId) {
-        return ResponseEntity.ok(service.findAllLicensesForOrganization(organizationId));
+    public ResponseEntity<List<LicenseDTO>> fetchLicensesForOrganization(@RequestHeader(value = "Authorization") String authHeader, @PathVariable ("organizationId") String organizationId) {
+        return ResponseEntity.ok(service.findAllLicensesForOrganization(authHeader, organizationId));
     }
 
 }

@@ -182,26 +182,28 @@ class OrganizationServiceTest {
     @Test
     void itShouldFindAllLicensesForOrganization() {
         ArrayList<LicenseDTO> licenseDTOList = new ArrayList<>();
-        when(this.licenseFeignClient.getAllLicensesForOrganization(any())).thenReturn(licenseDTOList);
+        when(this.licenseFeignClient.getAllLicensesForOrganization(any(),any())).thenReturn(licenseDTOList);
         String organizationId = "5554552";
+        String authHeader = "random auth header";
 
         List<LicenseDTO> actualFindAllLicensesForOrganizationResult = this.organizationService
-                .findAllLicensesForOrganization(organizationId);
+                .findAllLicensesForOrganization(authHeader, organizationId);
 
         assertSame(licenseDTOList, actualFindAllLicensesForOrganizationResult);
         assertTrue(actualFindAllLicensesForOrganizationResult.isEmpty());
-        verify(this.licenseFeignClient).getAllLicensesForOrganization(any());
+        verify(this.licenseFeignClient).getAllLicensesForOrganization(any(), any());
     }
 
     @Test
     void itShouldThrowMissingOrganizationException() {
-        when(this.licenseFeignClient.getAllLicensesForOrganization(any()))
+        when(this.licenseFeignClient.getAllLicensesForOrganization(any(), any()))
                 .thenThrow(new MissingOrganizationException("Missing organization"));
         String organizationId = "555552";
+        String authHeader = "random auth header";
 
         assertThrows(MissingOrganizationException.class,
-                () -> this.organizationService.findAllLicensesForOrganization(organizationId));
-        verify(this.licenseFeignClient).getAllLicensesForOrganization(any());
+                () -> this.organizationService.findAllLicensesForOrganization(authHeader, organizationId));
+        verify(this.licenseFeignClient).getAllLicensesForOrganization(any(), any());
     }
 }
 

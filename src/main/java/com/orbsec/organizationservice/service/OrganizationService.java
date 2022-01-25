@@ -1,11 +1,13 @@
 package com.orbsec.organizationservice.service;
 
 import com.orbsec.organizationservice.exceptions.MissingOrganizationException;
+import com.orbsec.organizationservice.exceptions.UnauthorizedException;
 import com.orbsec.organizationservice.model.LicenseDTO;
 import com.orbsec.organizationservice.model.Organization;
 import com.orbsec.organizationservice.model.OrganizationDto;
 import com.orbsec.organizationservice.repository.OrganizationRepository;
 import com.orbsec.organizationservice.service.client.LicenseFeignClient;
+import feign.FeignException;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -103,8 +105,8 @@ public class OrganizationService {
     @CircuitBreaker(name = "licensingService", fallbackMethod = "licensingServiceFallback")
     @Retry(name ="retryLicenseService", fallbackMethod = "licensingServiceFallback")
     @Bulkhead(name = "bulkheadLicensingService",  fallbackMethod = "licensingServiceFallback")
-    public List<LicenseDTO> findAllLicensesForOrganization(String organizationId) {
-        return licenseFeignClient.getAllLicensesForOrganization(organizationId);
+    public List<LicenseDTO> findAllLicensesForOrganization(String authHeader,String organizationId) throws UnauthorizedException {
+        return licenseFeignClient.getAllLicensesForOrganization(authHeader, organizationId);
     }
 
 //    FallBacks
@@ -118,10 +120,14 @@ public class OrganizationService {
     }
 
     @SuppressWarnings("unused")
-    private List<LicenseDTO> licensingServiceFallback(String organizationId, Throwable exception) {
-        LOGGER.warn("Called licensingServiceFallback() ");
+    private List<LicenseDTO> licensingServiceFallback(String authHeader,String organizationId, Throwable exception) {
+        LOGGER.warn("Called licensingServiceFallback() with authHeader {}", authHeader);
+        if (exception instanceof FeignException.Unauthorized) {
+            throw new UnauthorizedException(exception.getMessage());
+        }
         List<LicenseDTO> dtoList = new ArrayList<>();
-        LicenseDTO licenseDTO = new LicenseDTO( "Unable to fetch License details", FAKE_DATA, FAKE_DATA, FAKE_DATA,
+        LicenseDTO licenseDTO = new LicenseDTO(
+                "Unable to fetch License details", FAKE_DATA, FAKE_DATA, FAKE_DATA,
                 FAKE_DATA, FAKE_DATA, FAKE_DATA, FAKE_DATA, FAKE_DATA, FAKE_DATA);
         dtoList.add(licenseDTO);
         return dtoList;
