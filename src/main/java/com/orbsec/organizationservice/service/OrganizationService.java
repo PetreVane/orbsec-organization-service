@@ -105,8 +105,8 @@ public class OrganizationService {
     @CircuitBreaker(name = "licensingService", fallbackMethod = "licensingServiceFallback")
     @Retry(name ="retryLicenseService", fallbackMethod = "licensingServiceFallback")
     @Bulkhead(name = "bulkheadLicensingService",  fallbackMethod = "licensingServiceFallback")
-    public List<LicenseDTO> findAllLicensesForOrganization(String authHeader,String organizationId) throws UnauthorizedException {
-        return licenseFeignClient.getAllLicensesForOrganization(authHeader, organizationId);
+    public List<LicenseDTO> findAllLicensesForOrganization(String authToken, String organizationId) throws UnauthorizedException {
+        return licenseFeignClient.getAllLicensesForOrganization(authToken, organizationId);
     }
 
 //    FallBacks
