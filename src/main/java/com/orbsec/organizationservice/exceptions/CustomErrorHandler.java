@@ -15,8 +15,14 @@ public class CustomErrorHandler {
     }
 
     @ExceptionHandler(MissingOrganizationException.class)
-    public ResponseEntity<CustomError> organizationErrorHandler(MissingOrganizationException exception) {
+    public ResponseEntity<CustomError> organizationExceptionHandler(MissingOrganizationException exception) {
         var error = errorGenerator(exception, HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<CustomError> unauthorizedExceptionHandler(UnauthorizedException exception) {
+        var error = errorGenerator(exception, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 }
