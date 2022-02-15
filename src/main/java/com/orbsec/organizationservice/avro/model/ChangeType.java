@@ -3,11 +3,11 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.orbsec.organizationservice.events;
+package com.orbsec.organizationservice.avro.model;
 @org.apache.avro.specific.AvroGenerated
 public enum ChangeType implements org.apache.avro.generic.GenericEnumSymbol<ChangeType> {
   CREATION, UPDATE, DELETION  ;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"ChangeType\",\"namespace\":\"com.orbsec.organizationservice.events\",\"symbols\":[\"CREATION\",\"UPDATE\",\"DELETION\"]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"ChangeType\",\"namespace\":\"com.orbsec.organizationservice.avro.model\",\"symbols\":[\"CREATION\",\"UPDATE\",\"DELETION\"]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
 }
