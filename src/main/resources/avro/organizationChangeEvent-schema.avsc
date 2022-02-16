@@ -1,7 +1,7 @@
 {
   "type": "record",
   "name": "OrganizationChangeEvent",
-  "namespace": "com.orbsec.organizationservice.events",
+  "namespace": "com.orbsec.organizationservice.avro.model",
   "fields": [
     {
       "name": "organizationId",
