@@ -1,7 +1,9 @@
 package com.orbsec.organizationservice.service;
 
+import com.orbsec.organizationservice.avro.model.ChangeType;
 import com.orbsec.organizationservice.exceptions.MissingOrganizationException;
 import com.orbsec.organizationservice.exceptions.UnauthorizedException;
+import com.orbsec.organizationservice.kafka.EventProducer;
 import com.orbsec.organizationservice.model.LicenseDTO;
 import com.orbsec.organizationservice.model.Organization;
 import com.orbsec.organizationservice.model.OrganizationDto;
@@ -31,11 +33,13 @@ public class OrganizationService {
     private final LicenseFeignClient licenseFeignClient;
     private ModelMapper modelMapper;
     private static final String FAKE_DATA = "Unable to fetch data";
+    private final EventProducer eventProducer;
 
     @Autowired
-    public OrganizationService(OrganizationRepository repository, LicenseFeignClient licenseFeignClient) {
+    public OrganizationService(OrganizationRepository repository, LicenseFeignClient licenseFeignClient, EventProducer eventProducer) {
         this.repository = repository;
         this.licenseFeignClient = licenseFeignClient;
+        this.eventProducer = eventProducer;
         configureModelMapper();
     }
 
@@ -70,9 +74,12 @@ public class OrganizationService {
     @Retry(name ="retryOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
     @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
     public OrganizationDto create(OrganizationDto organizationDto) {
+
         Organization organization = mapDto(organizationDto);
         organization.setId( UUID.randomUUID().toString());
         Organization savedOrganization = repository.save(organization);
+        log.debug("Created new record with organization id {}", organization.getId());
+        eventProducer.publishNewEvent(organization.getId(), ChangeType.CREATION, String.format("A new Organization with id %s has been saved to database", organization.getId()));
         return mapOrganization(savedOrganization);
     }
 
