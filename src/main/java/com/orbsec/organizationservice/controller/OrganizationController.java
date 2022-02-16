@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
 @RestController
@@ -22,31 +21,31 @@ public class OrganizationController {
         this.service = service;
     }
 
-    @RolesAllowed("ADMIN")
+//    @RolesAllowed("ADMIN")
     @GetMapping(value = "/all")
     public ResponseEntity<List<OrganizationDto>> getAllOrganizations() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @RolesAllowed({ "ADMIN", "USER" })
+//    @RolesAllowed({ "ADMIN", "USER" })
     @GetMapping(value="/{organizationId}")
     public ResponseEntity<OrganizationDto> getOrganization(@PathVariable("organizationId") String organizationId) {
         return ResponseEntity.ok(service.findById(organizationId));
     }
 
-    @RolesAllowed("ADMIN")
+//    @RolesAllowed("ADMIN")
     @PutMapping(value="/{organizationId}")
     public ResponseEntity<OrganizationDto> updateOrganization(@PathVariable("organizationId") String id, @RequestBody OrganizationDto organizationDto) {
         return ResponseEntity.ok(service.update(id, organizationDto));
     }
 
-    @RolesAllowed({ "ADMIN", "USER" })
+//    @RolesAllowed({ "ADMIN", "USER" })
     @PostMapping
     public ResponseEntity<OrganizationDto> saveOrganization(@RequestBody OrganizationDto organizationDto) {
         return ResponseEntity.ok(service.create(organizationDto));
     }
 
-    @RolesAllowed("ADMIN")
+//    @RolesAllowed("ADMIN")
     @DeleteMapping(value="/{organizationId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<String> deleteOrganization( @PathVariable("organizationId") String id) {
