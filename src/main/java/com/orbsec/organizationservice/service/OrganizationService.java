@@ -11,6 +11,7 @@ import feign.FeignException;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
@@ -22,13 +23,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class OrganizationService {
 
     private final OrganizationRepository repository;
     private final LicenseFeignClient licenseFeignClient;
     private ModelMapper modelMapper;
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationService.class);
     private static final String FAKE_DATA = "Unable to fetch data";
 
     @Autowired
@@ -75,20 +76,30 @@ public class OrganizationService {
         return mapOrganization(savedOrganization);
     }
 
-    @CircuitBreaker(name = "organizationDatabase", fallbackMethod = "crudOrganizationFallback")
-    @Retry(name ="retryOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
-    @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
-    public void update(OrganizationDto organizationDto) {
-        Organization organization = mapDto(organizationDto);
-        repository.save(organization);
+    @CircuitBreaker(name = "organizationDatabase", fallbackMethod = "updateOrganizationFallback")
+    @Retry(name ="retryOrganizationDatabase", fallbackMethod = "updateOrganizationFallback")
+    @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "updateOrganizationFallback")
+    public OrganizationDto update(String organizationId, OrganizationDto updateDto) {
+        var existingDto = findById(organizationId);
+        modelMapper.map(updateDto, existingDto);
+        Organization updatedRecord = mapDto(existingDto);
+        repository.save(updatedRecord);
+        return existingDto;
     }
 
     @CircuitBreaker(name = "organizationDatabase", fallbackMethod = "crudOrganizationFallback")
     @Retry(name ="retryOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
     @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
-    public void delete(OrganizationDto organizationDto) {
-        Organization organization = mapDto(organizationDto);
-        repository.deleteById(organization.getId());
+    public String delete(String organizationId) throws MissingOrganizationException {
+        String message;
+        var existingOrganization = repository.findById(organizationId);
+        if (existingOrganization.isPresent()) {
+            repository.delete(existingOrganization.get());
+            message = String.format("Organization with id %s has been deleted", organizationId);
+        } else {
+            throw new MissingOrganizationException(String.format("No organization found for this id: %s", organizationId));
+        }
+        return message;
     }
 
     @CircuitBreaker(name = "organizationDatabase", fallbackMethod = "findAllFallback")
@@ -115,13 +126,13 @@ public class OrganizationService {
         if (exception instanceof MissingOrganizationException) {
             throw new MissingOrganizationException("No organization found for the provided id");
         }
-        LOGGER.warn("Called findByIdFallback() ");
+        log.warn("Called findByIdFallback() ");
         return new OrganizationDto(organizationId, "Unable to fetch organization details", FAKE_DATA, FAKE_DATA, FAKE_DATA);
     }
 
     @SuppressWarnings("unused")
     private List<LicenseDTO> licensingServiceFallback(String authHeader,String organizationId, Throwable exception) {
-        LOGGER.warn("Called licensingServiceFallback() with authHeader {}", authHeader);
+        log.warn("Called licensingServiceFallback() with authHeader {}", authHeader);
         if (exception instanceof FeignException.Unauthorized) {
             throw new UnauthorizedException(exception.getMessage());
         }
@@ -135,7 +146,7 @@ public class OrganizationService {
 
     @SuppressWarnings("unused")
     private List<Organization> findAllFallback(Throwable exception) {
-        LOGGER.warn("Called @CircuitBreaker findAllFallback() ");
+        log.warn("Called @CircuitBreaker findAllFallback() ");
         List<Organization> organizationList = new ArrayList<>();
          Organization dummyOrganization = new Organization("Unable to fetch organization id", "Unable to fetch organization details", FAKE_DATA, FAKE_DATA, FAKE_DATA);
         organizationList.add(dummyOrganization);
@@ -144,7 +155,13 @@ public class OrganizationService {
 
     @SuppressWarnings("unused")
     private OrganizationDto crudOrganizationFallback(Throwable exception) {
-        LOGGER.warn("Called crudOrganizationFallback() ");
+        log.warn("Called crudOrganizationFallback() ");
+        return new OrganizationDto("Database service unavailable. Try again later!", FAKE_DATA, FAKE_DATA, FAKE_DATA, FAKE_DATA);
+    }
+
+    @SuppressWarnings("unused")
+    private OrganizationDto updateOrganizationFallback(String organizationID, OrganizationDto dto,Throwable exception) {
+        log.warn("Called crudOrganizationFallback() ");
         return new OrganizationDto("Database service unavailable. Try again later!", FAKE_DATA, FAKE_DATA, FAKE_DATA, FAKE_DATA);
     }
 

@@ -128,7 +128,7 @@ class OrganizationControllerTest {
     @Test
     void itShouldUpdateOrganization() throws Exception {
         // Given
-        doNothing().when(this.organizationService).update(any());
+        doNothing().when(this.organizationService).update(any(), any());
 
         Organization organization = new Organization();
         organization.setId("42");

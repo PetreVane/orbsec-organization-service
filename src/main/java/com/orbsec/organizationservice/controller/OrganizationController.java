@@ -36,8 +36,8 @@ public class OrganizationController {
 
     @RolesAllowed("ADMIN")
     @PutMapping(value="/{organizationId}")
-    public void updateOrganization(@PathVariable("organizationId") String id, @RequestBody OrganizationDto organizationDto) {
-        service.update(organizationDto);
+    public ResponseEntity<OrganizationDto> updateOrganization(@PathVariable("organizationId") String id, @RequestBody OrganizationDto organizationDto) {
+        return ResponseEntity.ok(service.update(id, organizationDto));
     }
 
     @RolesAllowed({ "ADMIN", "USER" })
@@ -49,8 +49,8 @@ public class OrganizationController {
     @RolesAllowed("ADMIN")
     @DeleteMapping(value="/{organizationId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deleteOrganization( @PathVariable("organizationId") String id,  @RequestBody OrganizationDto organizationDto) {
-        service.delete(organizationDto);
+    public ResponseEntity<String> deleteOrganization( @PathVariable("organizationId") String id) {
+        return ResponseEntity.ok(service.delete(id));
     }
 
     @GetMapping(value = "license/{organizationId}")
