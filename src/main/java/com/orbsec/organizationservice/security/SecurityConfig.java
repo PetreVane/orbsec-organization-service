@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
+    //TODO: configure adapter to route only the authenticated requests -> see comment
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);

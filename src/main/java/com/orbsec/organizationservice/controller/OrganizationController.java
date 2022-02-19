@@ -21,30 +21,35 @@ public class OrganizationController {
         this.service = service;
     }
 
+    //TODO: Reactivate commented-out security rule
 //    @RolesAllowed("ADMIN")
     @GetMapping(value = "/all")
     public ResponseEntity<List<OrganizationDto>> getAllOrganizations() {
         return ResponseEntity.ok(service.findAll());
     }
 
+    //TODO: Reactivate commented-out security rule
 //    @RolesAllowed({ "ADMIN", "USER" })
     @GetMapping(value="/{organizationId}")
     public ResponseEntity<OrganizationDto> getOrganization(@PathVariable("organizationId") String organizationId) {
         return ResponseEntity.ok(service.findById(organizationId));
     }
 
+    //TODO: Reactivate commented-out security rule
 //    @RolesAllowed("ADMIN")
     @PutMapping(value="/{organizationId}")
     public ResponseEntity<OrganizationDto> updateOrganization(@PathVariable("organizationId") String id, @RequestBody OrganizationDto organizationDto) {
         return ResponseEntity.ok(service.update(id, organizationDto));
     }
 
+    //TODO: Reactivate commented-out security rule
 //    @RolesAllowed({ "ADMIN", "USER" })
     @PostMapping
     public ResponseEntity<OrganizationDto> saveOrganization(@RequestBody OrganizationDto organizationDto) {
         return ResponseEntity.ok(service.create(organizationDto));
     }
 
+    //TODO: Reactivate commented-out security rule
 //    @RolesAllowed("ADMIN")
     @DeleteMapping(value="/{organizationId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
