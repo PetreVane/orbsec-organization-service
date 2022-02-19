@@ -35,7 +35,7 @@ public class EventSerializer implements Serializer<OrganizationChangeEvent> {
         } catch (JsonProcessingException e) {
             log.error("Failed serializing OrganizationChangeEvent: {}", e.getMessage());
         }
-
+        log.info("OrganizationChangeEvent serialized!");
         return Serializer.super.serialize(topic, headers, data);
     }
 
