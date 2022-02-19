@@ -12,7 +12,5 @@ import java.util.List;
 public interface LicenseFeignClient {
 
     @GetMapping(value = "/organization/{organizationId}")
-    List<LicenseDTO> getAllLicensesForOrganization(
-            @RequestHeader(value = "Authorization") String authorizationToken,
-            @PathVariable("organizationId") String organizationId);
+    List<LicenseDTO> getAllLicensesForOrganization(@RequestHeader(value = "Authorization") String authorizationToken, @PathVariable("organizationId") String organizationId);
 }
