@@ -61,10 +61,13 @@ public class OrganizationService {
     @Retry(name ="retryOrganizationDatabase", fallbackMethod = "findByIdFallback")
     @Bulkhead(name = "bulkheadOrganizationDatabase",  fallbackMethod = "findByIdFallback")
     public OrganizationDto findById(String organizationId) throws MissingOrganizationException {
+        log.info("Attempting to find organization record for id: {}", organizationId);
         Optional<Organization> opt = repository.findById(organizationId);
         if (opt.isPresent()) {
+            log.info("Found organization record for id {}", organizationId);
             return mapOrganization(opt.get());
         } else {
+            log.error("No organization found for the provided id: {}", organizationId);
             throw new MissingOrganizationException("No organization found for the provided id");
         }
     }
@@ -73,19 +76,25 @@ public class OrganizationService {
     @Retry(name ="retryOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
     @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "crudOrganizationFallback")
     public OrganizationDto create(OrganizationDto organizationDto) {
-
         Organization organization = mapDto(organizationDto);
         organization.setId( UUID.randomUUID().toString());
-        Organization savedOrganization = repository.save(organization);
-        log.info("Created new record with organization id {}", organization.getId());
-        eventProducer.publishNewEvent(organization.getId(), ChangeType.CREATION, String.format("A new Organization with id %s has been saved to the database.", organization.getId()));
-        return mapOrganization(savedOrganization);
+        log.info("Attempting to create a new organization record for id: {}", organization.getId());
+        try {
+            Organization savedOrganization = repository.save(organization);
+            log.info("Created new record with organization id {}", organization.getId());
+            eventProducer.publishNewEvent(organization.getId(), ChangeType.CREATION, String.format("A new Organization with id %s has been saved to the database.", organization.getId()));
+            return mapOrganization(savedOrganization);
+        } catch (Exception e) {
+            log.error("Error while trying to save organziation record to database: {}", e.getMessage());
+        }
+        return  organizationDto;
     }
 
     @CircuitBreaker(name = "organizationDatabase", fallbackMethod = "updateOrganizationFallback")
     @Retry(name ="retryOrganizationDatabase", fallbackMethod = "updateOrganizationFallback")
     @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "updateOrganizationFallback")
     public OrganizationDto update(String organizationId, OrganizationDto updateDto) {
+        log.info("Attempting to update organization record with id: {}", organizationId);
         var existingDto = findById(organizationId);
        existingDto.setName(updateDto.getName());
        existingDto.setContactName(updateDto.getContactName());
@@ -94,7 +103,7 @@ public class OrganizationService {
 
         Organization updatedRecord = mapDto(existingDto);
         repository.save(updatedRecord);
-        log.info("Updated organization with id {}", updatedRecord.getId());
+        log.info("Successfully updated organization record with id {}", updatedRecord.getId());
         eventProducer.publishNewEvent(updatedRecord.getId(), ChangeType.UPDATE, String.format("Organization with id %s has been updated", updatedRecord.getId()));
         return existingDto;
     }
@@ -103,15 +112,16 @@ public class OrganizationService {
     @Retry(name ="retryOrganizationDatabase", fallbackMethod = "deleteOrganizationFallback")
     @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "deleteOrganizationFallback")
     public String delete(String organizationId) throws MissingOrganizationException {
+        log.info("Attempting to delete organization record with id: {}", organizationId);
         String message;
         var existingOrganization = repository.findById(organizationId);
         if (existingOrganization.isPresent()) {
             repository.delete(existingOrganization.get());
             message = String.format("Organization with id %s has been deleted", organizationId);
-            log.info("Organization with id {} has been deleted", organizationId);
+            log.info("Organization record with id: {} has been successfully deleted", organizationId);
             eventProducer.publishNewEvent(organizationId, ChangeType.DELETION, String.format("Organization with id %s has been deleted", organizationId));
         } else {
-            log.error("Failed to delete organization with id {}", organizationId);
+            log.error("Failed to delete organization record with id {}", organizationId);
             throw new MissingOrganizationException(String.format("No organization found for this id: %s", organizationId));
         }
         return message;
@@ -121,9 +131,11 @@ public class OrganizationService {
     @Retry(name ="retryOrganizationDatabase", fallbackMethod = "findAllFallback")
     @Bulkhead(name = "bulkheadOrganizationDatabase", fallbackMethod = "findAllFallback")
     public List<OrganizationDto> findAll() {
+        log.info("Attempting to find all organization records");
         var orgDtoList = new ArrayList<OrganizationDto>();
         var organizations = repository.findAll();
         organizations.forEach(organization -> orgDtoList.add(mapOrganization(organization)));
+        log.info("Returning a list of organization records ...");
         return orgDtoList;
     }
 
@@ -132,6 +144,8 @@ public class OrganizationService {
     @Retry(name ="retryLicenseService", fallbackMethod = "licensingServiceFallback")
     @Bulkhead(name = "bulkheadLicensingService",  fallbackMethod = "licensingServiceFallback")
     public List<LicenseDTO> findAllLicensesForOrganization(String authToken, String organizationId) throws UnauthorizedException {
+        log.info("Attempting to find all License records for organization id: {}", organizationId);
+        log.warn("Calling remote licensing-service via feign --> -->");
         return licenseFeignClient.getAllLicensesForOrganization(authToken, organizationId);
     }
 
@@ -139,7 +153,8 @@ public class OrganizationService {
     @SuppressWarnings("unused")
     private OrganizationDto findByIdFallback(String organizationId, Throwable exception) {
         if (exception instanceof MissingOrganizationException) {
-            throw new MissingOrganizationException("No organization found for the provided id");
+            log.error("No organization found for the provided id: {}", organizationId);
+            throw new MissingOrganizationException(String.format("No organization found for the provided id: s%", organizationId));
         }
         log.warn("CircuitBreaker: called findByIdFallback() methods ");
         return new OrganizationDto(organizationId, "Unable to fetch organization details", FAKE_DATA, FAKE_DATA, FAKE_DATA);
@@ -171,12 +186,15 @@ public class OrganizationService {
 
     @SuppressWarnings("unused")
     private OrganizationDto crudOrganizationFallback(Throwable exception) {
-        log.warn("CircuitBreaker: called  crudOrganizationFallback() method ");
+        log.warn("CircuitBreaker: called crudOrganizationFallback() method ");
         return new OrganizationDto("Database service unavailable. Try again later!", FAKE_DATA, FAKE_DATA, FAKE_DATA, FAKE_DATA);
     }
 
     @SuppressWarnings("unused")
     private OrganizationDto updateOrganizationFallback(String organizationID, OrganizationDto dto,Throwable exception) {
+        if (exception instanceof MissingOrganizationException) {
+            throw new MissingOrganizationException(exception.getMessage());
+        }
         log.warn("CircuitBreaker: called updateOrganizationFallback() method ");
         return new OrganizationDto("Database service unavailable. Try again later!", FAKE_DATA, FAKE_DATA, FAKE_DATA, FAKE_DATA);
     }
