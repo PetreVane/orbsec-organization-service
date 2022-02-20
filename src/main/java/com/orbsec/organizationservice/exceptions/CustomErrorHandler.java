@@ -27,4 +27,11 @@ public class CustomErrorHandler {
         var error = errorGenerator(exception, HttpStatus.UNAUTHORIZED);
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(InvalidOrganizationRecord.class)
+    public ResponseEntity<CustomError> invalidOrganizationExceptionHandler(InvalidOrganizationRecord exception) {
+        var error = errorGenerator(exception, HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
+    }
+
 }
