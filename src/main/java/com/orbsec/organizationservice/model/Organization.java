@@ -9,7 +9,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
 
 @Entity
 @Table(name = "organizations")
@@ -27,7 +26,6 @@ public class Organization {
     @Column(name = "contact_name", nullable = false)
     String contactName;
 
-    @Email
     @Column(name = "contact_email", nullable = false)
     String contactEmail;
 
