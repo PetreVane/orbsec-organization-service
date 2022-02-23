@@ -37,7 +37,7 @@
 			<version>2.5.6</version>
 		</dependency>
 
-		<!-- Kafka dependency		-->
+		<!-- Spring-cloud-bus-kafka 		-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-bus-kafka</artifactId>
@@ -72,10 +72,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-hateoas</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -184,19 +186,25 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
-	<!-- avro dependencies		-->
+		<!-- avro dependencies		-->
 		<dependency>
 			<groupId>org.apache.avro</groupId>
 			<artifactId>avro</artifactId>
 			<version>${avro.version}</version>
 		</dependency>
 
-	<!-- Kafka		-->
+		<!-- Kafka		-->
 		<!-- https://mvnrepository.com/artifact/io.confluent/kafka-avro-serializer -->
 		<dependency>
 			<groupId>io.confluent</groupId>
 			<artifactId>kafka-avro-serializer</artifactId>
 			<version>7.0.1</version>
+		</dependency>
+
+		<!--	Distributed tracing	-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
 		</dependency>
 
 	</dependencies>
@@ -232,13 +240,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.2</version>
-			</plugin>
-		<!-- sonar		-->
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<!-- see versions at https://search.maven.org/search?q=g:org.sonarsource.scanner.maven%20AND%20a:sonar-maven-plugin -->
-				<version>3.7.0.1746</version>
 			</plugin>
 
 		<!-- spring-maven		-->
@@ -276,35 +277,6 @@
 							<goal>build</goal>
 							<goal>push</goal>
 						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- jacoco			-->
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco.version}</version>
-				<executions>
-					<execution>
-						<id>jacoco-initialize</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>jacoco-site</id>
-						<phase>package</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<goals>
-							<goal>report</goal>
-						</goals>
-						<phase>verify</phase>
 					</execution>
 				</executions>
 			</plugin>
