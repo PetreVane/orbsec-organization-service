@@ -1,29 +1,30 @@
 package com.orbsec.organizationservice.logging;
 
 import ch.qos.logback.classic.LoggerContext;
-import com.orbsec.organizationservice.configs.ServiceConfig;
 import net.logstash.logback.appender.LogstashTcpSocketAppender;
 import net.logstash.logback.encoder.LogstashEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
-@Component
+@Configuration
+@ConditionalOnProperty(name = "logging.logstash.url")
 public class LogstashAppender {
 
-    private final ServiceConfig serviceConfig;
+    @Value("${spring.application.name:null}")
+    private String applicationName;
 
-    @Autowired
-    public LogstashAppender(ServiceConfig serviceConfig) {
-        this.serviceConfig = serviceConfig;
-    }
+    @Value("${logging.logstash.url}")
+    private String logstashUrl;
+
 
     @EventListener(ContextRefreshedEvent.class)
     public void onContextRefreshedEvent(ContextRefreshedEvent event) {
@@ -47,12 +48,12 @@ public class LogstashAppender {
                 LogstashTcpSocketAppender logstashTcpSocketAppender = new LogstashTcpSocketAppender();
                 logstashTcpSocketAppender.setName("LOGSTASH");
                 logstashTcpSocketAppender.setContext(loggerContext);
-                logstashTcpSocketAppender.addDestination(serviceConfig.getLogstashUrl());
+                logstashTcpSocketAppender.addDestination(logstashUrl);
 
                 LogstashEncoder encoder = new LogstashEncoder();
                 encoder.setIncludeMdc(true);
                 encoder.getFieldNames().setLevelValue(null);
-                encoder.setCustomFields(String.format("{\"app_name\":\"%s\"}", serviceConfig.getApplicationName()));
+                encoder.setCustomFields(String.format("{\"app_name\":\"%s\"}", applicationName));
 
                 logstashTcpSocketAppender.setEncoder(encoder);
                 logstashTcpSocketAppender.start();
