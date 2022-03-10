@@ -79,15 +79,10 @@ public class OrganizationService {
         Organization organization = mapDto(organizationDto);
         organization.setId( UUID.randomUUID().toString());
         log.info("Attempting to create a new organization record for id: {}", organization.getId());
-        try {
-            Organization savedOrganization = repository.save(organization);
-            log.info("Created new record with organization id {}", organization.getId());
-            eventProducer.publishNewEvent(organization.getId(), ChangeType.CREATION, String.format("A new Organization with id %s has been saved to the database.", organization.getId()));
-            return mapOrganization(savedOrganization);
-        } catch (Exception e) {
-            log.error("Error while trying to save organziation record to database: {}", e.getMessage());
-        }
-        return  organizationDto;
+        Organization savedOrganization = repository.save(organization);
+        log.info("Created new record with organization id {}", organization.getId());
+        eventProducer.publishNewEvent(organization.getId(), ChangeType.CREATION, String.format("A new Organization with id %s has been saved to the database.", organization.getId()));
+        return mapOrganization(savedOrganization);
     }
 
     @CircuitBreaker(name = "organizationDatabase", fallbackMethod = "updateOrganizationFallback")
@@ -96,10 +91,10 @@ public class OrganizationService {
     public OrganizationDto update(String organizationId, OrganizationDto updateDto) {
         log.info("Attempting to update organization record with id: {}", organizationId);
         var existingDto = findById(organizationId);
-       existingDto.setName(updateDto.getName());
-       existingDto.setContactName(updateDto.getContactName());
-       existingDto.setContactEmail(updateDto.getContactEmail());
-       existingDto.setContactPhone(updateDto.getContactPhone());
+        existingDto.setName(updateDto.getName());
+        existingDto.setContactName(updateDto.getContactName());
+        existingDto.setContactEmail(updateDto.getContactEmail());
+        existingDto.setContactPhone(updateDto.getContactPhone());
 
         Organization updatedRecord = mapDto(existingDto);
         repository.save(updatedRecord);
@@ -154,7 +149,7 @@ public class OrganizationService {
     private OrganizationDto findByIdFallback(String organizationId, Throwable exception) {
         if (exception instanceof MissingOrganizationException) {
             log.error("No organization found for the provided id: {}", organizationId);
-            throw new MissingOrganizationException(String.format("No organization found for the provided id: s%", organizationId));
+            throw new MissingOrganizationException("No organization found for the provided id");
         }
         log.warn("CircuitBreaker: called findByIdFallback() methods ");
         return new OrganizationDto(organizationId, "Unable to fetch organization details", FAKE_DATA, FAKE_DATA, FAKE_DATA);
