@@ -4,6 +4,7 @@ import com.orbsec.organizationservice.exceptions.InvalidOrganizationRecord;
 import com.orbsec.organizationservice.model.LicenseDTO;
 import com.orbsec.organizationservice.model.OrganizationDto;
 import com.orbsec.organizationservice.service.OrganizationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/v1/organization")
 public class OrganizationController {
@@ -43,7 +45,8 @@ public class OrganizationController {
     @PutMapping(value="/{organizationId}")
     public ResponseEntity<OrganizationDto> updateOrganization(@PathVariable("organizationId") String id, @Valid @RequestBody OrganizationDto organizationDto, BindingResult result) {
         if (result.hasErrors()) {
-            throw new InvalidOrganizationRecord("An error occured while trying to update organization record: invalid email address");
+            log.error("Failed updating Organization record with id {} ", id);
+            throw new InvalidOrganizationRecord("An error occured while trying to update organization record");
         }
         return ResponseEntity.ok(service.update(id, organizationDto));
     }
@@ -53,7 +56,8 @@ public class OrganizationController {
     @PostMapping
     public ResponseEntity<OrganizationDto> saveOrganization(@Valid @RequestBody OrganizationDto organizationDto, BindingResult result) {
         if (result.hasErrors()) {
-            throw new InvalidOrganizationRecord("An error occured while trying to save organization record: invalid email address");
+            log.error("Failed updating Organization record with name {} ", organizationDto.getName());
+            throw new InvalidOrganizationRecord("An error occured while trying to save organization record.");
         }
         return ResponseEntity.ok(service.create(organizationDto));
     }
