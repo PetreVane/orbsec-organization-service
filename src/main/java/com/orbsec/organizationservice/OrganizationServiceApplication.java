@@ -19,6 +19,6 @@ public class OrganizationServiceApplication {
 
 	@Bean
 	NewTopic organizationTopic() {
-		return TopicBuilder.name("organization_events").partitions(3).replicas(1).build();
+		return TopicBuilder.name("organization_events").partitions(1).replicas(1).build();
 	}
 }
