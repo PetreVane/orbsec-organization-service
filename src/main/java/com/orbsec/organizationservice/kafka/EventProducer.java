@@ -1,7 +1,7 @@
 package com.orbsec.organizationservice.kafka;
 
-import com.orbsec.organizationservice.avro.model.ChangeType;
-import com.orbsec.organizationservice.avro.model.OrganizationChangeEvent;
+import com.orbsec.organizationservice.avro.ChangeType;
+import com.orbsec.organizationservice.avro.OrganizationChangeEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

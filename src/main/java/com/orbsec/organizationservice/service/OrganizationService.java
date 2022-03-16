@@ -1,6 +1,6 @@
 package com.orbsec.organizationservice.service;
 
-import com.orbsec.organizationservice.avro.model.ChangeType;
+import com.orbsec.organizationservice.avro.ChangeType;
 import com.orbsec.organizationservice.exceptions.MissingOrganizationException;
 import com.orbsec.organizationservice.exceptions.UnauthorizedException;
 import com.orbsec.organizationservice.kafka.EventProducer;

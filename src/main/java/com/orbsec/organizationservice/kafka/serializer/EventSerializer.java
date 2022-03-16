@@ -2,7 +2,7 @@ package com.orbsec.organizationservice.kafka.serializer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orbsec.organizationservice.avro.model.OrganizationChangeEvent;
+import com.orbsec.organizationservice.avro.OrganizationChangeEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
@@ -28,7 +28,7 @@ public class EventSerializer implements Serializer<OrganizationChangeEvent> {
         log.info("Attempting to serialize OrganizationChangeEvent object");
         try {
             if (data == null) {
-                return null;
+                return new byte[0];
             }
             mapper.addMixIn(OrganizationChangeEvent.class, IgnoreSchemaProperty.class);
             return mapper.writeValueAsBytes(data);
